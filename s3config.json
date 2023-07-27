@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "flyfar-quicktickets-394105",
+  "private_key_id": "61764e7dbcd381205827445043677c2a83d0fc86",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDRcaaAQTiN245K\nVHeRiGdarSCbZoKq02exeNWzzmyEkwqHis72E+aYgHQz916/mzH4pP+i1ZUz7JDx\nubrqttWGRaRNh++/4KM9DTFWwp8Oc9pRgDHqE56CF9oTaBDQwaXebTErXl09vrRX\nAAvfwWJbm7l+aqaQHMP62QXc0OVFcQQa0fiFNza3U4KYGUEz9i0vKcSry3rvSffv\ndJb2V9XtuB/K4iiHQfES2m3j3PzQp5i1w7PZTvgCj4qc0owVFX5vuYq3wM41H4vY\n07aFxKxaWYODpDXZIGMEXXHqrbMSu4yxMym+v/xtpt+7Jvdv9h578sCea2q/JvnP\nmP0ruAchAgMBAAECggEAEG3+5q63FgG0HsaTfpoZqXZNSYN4Gphs2PImqW02/Atg\n1xMfexRCkZH6C52LFDLDb8LZvtdMVf9nu16beBARne/WnLJeL0oa5A4l4a1wtryF\n0sDgqYESfRgL5lvSfd3C+jjMk59aZx6PnQeG5u2PnqoPmggZutJW2VWu7QyB/7li\nZX5lKilOocA9TyGYOsB3hslXUu/f8HBN2r+wxxCU53FWjHOja9RvVarIjENcI5sG\nKPVZ0y9Et0cl3NPLfcO2YXoD/gSHYuxiT51b/CyQQ5Vj0Lb6pq2yWG6C4ITDIobb\nBzbpGUoR6SZurIxmD9rTbLWt4yIoB4zZP87PpIX+cQKBgQD89Xa+ftdo8p/3u5JP\nTgbH9rDoCcLV8k7QC3xidHH30hyeN2baFqT0j+kCiLfWyE/OxHzF9R9l/hDAVp3O\n4g9MkUnpgZ8AdKbomua/v2hw977ZxA41nFrezPVipo1D0ox/yC+knmtcNHfIUKdc\n3iQllcZMebs9Aq9DXox6U9pI5QKBgQDT9kKLg0nN6jQ2MK/PLFyIqZ1bTKyHS1j0\n2ONDwdFaclbwFVb2OnFOq18PFQmKq+nzeRgujKPl8i1d+D4vNCjLrbdP8XAQAeoP\njDiS6GSs6YSiLJleaxB1OLVTyJn0F2bLRqIBG5dxGwpZ2DHkWrOuuf/oE8FmXlwW\nBEq7vj1NjQKBgDlTV2msTRzXfzEhLPMT961xVn3/WEwr8XhsYe/d+8Xxs9KXM5PQ\n9ekGhAOzABaIpq1xEeW6uzbd8OXluzWbPWRYuKtWWLY9uWWVVR23Pu/69SFcsOut\nV1qOkD2fCPyJxpVexI1F6YanzU10GbmODhsGaj4CiFA3P4jA8Iz4W8uRAoGAPPtB\no+/OwQ5bnSeevSUPLkZWPlkt3fLgkfkAUZMmjzYMKyCIl2izBqYpQCaWSy4wrdqu\nCV5vHQ3y3XE5Os1v20GMVtSooAJc+8Ik2KdBp7m7bgkUyuRUpNT+3i79lAtTiLI2\nk8kDZggYj0ay+/bYcTGUHYnpf3EwXyk28xLFglUCgYEAqxOm6Qfcy+1oUZw9dSZ7\nasK0NLEZXv6S3T24kNghDIhfxVo8TyQOSa50nNVoC/dyu/kGN5LNZvcnMsd68lND\n5F8egn3vUtKwOWRmsN1TI1NAdllT+2Tv/3xKM6VFYWPsRsWmspXDoGWKDF03fmRr\n3JEJ7gLbDeLqyR9dmLEv7V0=\n-----END PRIVATE KEY-----\n",
+  "client_email": "flyfar-quicktickets-394105@appspot.gserviceaccount.com",
+  "client_id": "113501629488636935827",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/flyfar-quicktickets-394105%40appspot.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
