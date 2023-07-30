@@ -1,7 +1,7 @@
-export interface INagadCreatePaymentResponse {
-	sensitiveData: string;
-	signature: string;
-}
+// export interface INagadCreatePaymentResponse {
+// 	sensitiveData: string;
+// 	signature: string;
+// }
 
 // export interface INagadCreatePaymentDecryptedResponse {
 // 	paymentReferenceId: string;
