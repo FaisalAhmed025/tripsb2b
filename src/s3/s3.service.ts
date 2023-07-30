@@ -16,12 +16,13 @@ export class GCSStorageService  {
             const serviceAccountKeyFile = 's3config.json';
             process.env.GOOGLE_APPLICATION_CREDENTIALS = serviceAccountKeyFile;
             const storage = new Storage({ keyFilename: serviceAccountKeyFile });
-            const bucketName = 'cdnflyfarladies'; // Replace with your actual bucket name
+            const bucketName = 'cdnflyfarquicktickets'; // Replace with your actual bucket name
             const bucket = storage.bucket(bucketName);
             const fileName = `${file.originalname}.webp`;
             const modifiedName = fileName.replace(/\s+/g, '_');
             const fileObject = bucket.file(modifiedName);
-          
+
+            
             try {
               const imageBuffer = await sharp(file.buffer).webp().toBuffer();
               await fileObject.save(imageBuffer, {
