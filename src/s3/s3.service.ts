@@ -21,7 +21,6 @@ export class GCSStorageService  {
             const fileName = `${file.originalname}.webp`;
             const modifiedName = fileName.replace(/\s+/g, '_');
             const fileObject = bucket.file(modifiedName);
-
             
             try {
               const imageBuffer = await sharp(file.buffer).webp().toBuffer();
