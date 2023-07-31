@@ -44,7 +44,6 @@ import { NagadModule } from './nagad/nagad.module';
       ],
       synchronize:false,
     }),
-    NagadModule,
     AgentModule,
     DepositrequestModule,
     TravellerModule,
@@ -52,6 +51,7 @@ import { NagadModule } from './nagad/nagad.module';
     GeneralLedgerModule,
     AmarpayModule,
     BkashModule,
+    NagadModule,
    
   ],
   controllers: [AppController],
