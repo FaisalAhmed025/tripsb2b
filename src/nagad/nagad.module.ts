@@ -6,7 +6,8 @@ import { HttpModule } from '@nestjs/axios';
 
 
 @Module({
-  imports: [ConfigModule.forRoot(), HttpModule],
+  imports: [ConfigModule.forRoot(),HttpModule
+  ],
   controllers: [NagadController],
   providers: [NagadGatservice]
 })

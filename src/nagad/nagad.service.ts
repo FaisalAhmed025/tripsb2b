@@ -87,7 +87,15 @@ constructor(private readonly httpService: HttpService) {
     return shortenedHash;
   }
 
-	async createPayment(createPaymentConfig: ICreatePaymentArgs): Promise<string> {
+  generateCustomOrderId(): string {
+	const timestamp = Date.now().toString();
+	const randomString = Math.random().toString(36).substr(2, 6); // Generate a random alphanumeric string
+	const hash = createHash('sha256').update(`${timestamp}${randomString}`).digest('hex');
+	const shortenedHash = hash.substr(0, 10).toUpperCase();
+	return shortenedHash;
+ }
+
+	async createNagadPayment(createPaymentConfig: ICreatePaymentArgs): Promise<string> {
 		const { amount, ip, productDetails, clientType } = createPaymentConfig;
 		const merchantID = '683002007104225'
 		const orderId =  this.generateCustomTransactionId()
@@ -100,7 +108,7 @@ constructor(private readonly httpService: HttpService) {
 			orderId,
 			challenge: this.createHash(orderId),
 		};
-const merchantNumber =" 01400001104"
+      const  merchantNumber ="01400001104"
 		const payload: INagadCreatePaymentBody = {
 			accountNumber: merchantNumber,
 			dateTime: timestamp,
@@ -109,6 +117,8 @@ const merchantNumber =" 01400001104"
 		};
 
 		const newIP = ip === '::1' || ip === '127.0.0.1' ? '103.100.200.100' : ip;
+		console.log();
+		
 
 		const { sensitiveData } = await this.post<INagadCreatePaymentResponse>(endpoint, payload, {
 			...this.headers,
@@ -126,8 +136,9 @@ const merchantNumber =" 01400001104"
 			productDetails,
 			ip: newIP,
 		};
-
-		const { callBackUrl } = await this.confirmPayment(confirmArgs, clientType);
+		
+		const { callBackUrl } = await this.confirmPayment();
+		console.log(callBackUrl);
 		return callBackUrl;
 	}
 
@@ -138,30 +149,33 @@ const merchantNumber =" 01400001104"
 	// 	);
 	// }
 
-	private async confirmPayment(data: IConfirmPaymentArgs, clientType: IClientType): Promise<INagadPaymentURL> {
-		const { amount, challenge, ip, orderId, paymentReferenceId, productDetails } = data;
+	private async confirmPayment(): Promise<INagadPaymentURL> {
 		const merchantID = '683002007104225'
 		const sensitiveData = {
 			merchantId: merchantID,
-			orderId,
-			amount,
+			orderId: this.generateCustomOrderId(),
+			amount:'1000',
 			currencyCode: '050',
-			challenge,
+			challenge: this.createHash(this.generateCustomOrderId())
 		};
+
+		
 		const payload = {
-			paymentRefId: paymentReferenceId,
+			paymentRefId: this.generateCustomTransactionId(),
 			sensitiveData: this.encrypt(sensitiveData),
 			signature: this.sign(sensitiveData),
 			merchantCallbackURL: this.callbackURL,
 			additionalMerchantInfo: {
-				...productDetails,
+		
 			},
 		};
-		const newIP = ip === '::1' || ip === '127.0.0.1' ? '103.100.102.100' : ip;
-		return await this.post<INagadPaymentURL>(`http://sandbox.mynagad.com:10080/api/dfs/check-out/complete/${paymentReferenceId}`, payload, {
+		console.log(sensitiveData);
+		
+		// const newIP = ip === '::1' || ip === '127.0.0.1' ? '103.100.102.100' : ip;
+		return await this.post<INagadPaymentURL>(`http://sandbox.mynagad.com:10080/api/dfs/check-out/complete/${this.generateCustomOrderId()}`, payload, {
 			...this.headers,
-			'X-KM-IP-V4': newIP,
-			'X-KM-Client-Type': clientType,
+			// 'X-KM-IP-V4': newIP,
+			// 'X-KM-Client-Type': clientType,
 		});
 	}
 
