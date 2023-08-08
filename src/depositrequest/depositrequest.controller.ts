@@ -194,7 +194,7 @@ export class DepositrequestController {
 }
 
 
-@Patch('approve')
+@Patch('approve/:depositid')
 @ApiBody({
   schema: {
     type: 'object',
