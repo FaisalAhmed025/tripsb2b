@@ -12,7 +12,7 @@ export interface INagadConstructor {
 	 * ```
 	 *
 	 */
-	baseURL: string;
+	baseURL: 'http://sandbox.mynagad.com/remote-payment-gateway';
 	merchantID: string;
 	merchantNumber: string;
 	/**
