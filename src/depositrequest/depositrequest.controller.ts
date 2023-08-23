@@ -104,7 +104,6 @@ export class DepositrequestController {
           errorMessage,
         });
       }
-  
       return res.status(201).json(data.payment_url);
     } catch (error) {
       console.error(error);
@@ -194,7 +193,7 @@ export class DepositrequestController {
 }
 
 
-@Patch('approve')
+@Patch('approve/:depositid')
 @ApiBody({
   schema: {
     type: 'object',

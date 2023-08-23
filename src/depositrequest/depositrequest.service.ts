@@ -19,7 +19,7 @@ export class DepositrequestService {
  async findAll() {
     return await this.bankdepositrepository.find({order:{createdAt:'DESC'}});
   }
-
+  
  async findOne(depositid: string) {
     const deposited = await this.bankdepositrepository.findOne({where:{depositid}});
     if(!deposited){

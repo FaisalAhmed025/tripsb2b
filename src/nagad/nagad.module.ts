@@ -1,18 +1,15 @@
-
-
-import { NagadService } from './nagad.service';
-// import { NagadController } from './nagad.controller';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { Module } from '@nestjs/common';
+import { NagadController } from './nagad.controller';
+import { NagadGatservice } from './nagad.service';
+import { ConfigModule } from '@nestjs/config';
 import { HttpModule } from '@nestjs/axios';
 
+
+
 @Module({
-  imports: [
-    HttpModule.register({
-    }),
+  imports: [ConfigModule.forRoot(),HttpModule,
   ],
-  controllers: [],
-  providers: [NagadService],
- 
+  controllers: [NagadController],
+  providers: [NagadGatservice],
 })
 export class NagadModule {}

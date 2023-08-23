@@ -20,14 +20,14 @@ export class agentService {
     const hashedPassword= await bcrypt.hash(authDto.password, 10)
     const newuser= await this.agentpository.create({...authDto, password: hashedPassword});
     await this.agentpository.save(newuser);
-    await this.sendRegisterSuccecess(authDto)
-    return this.generateToken(newuser)
+    await this.sendRegisterSuccecess(authDto);
+    return this.generateToken(newuser);
  }
   
  // generate token 
  async generateToken(authDto: CreateAuthDto): Promise<string> {
     const payload = { email: authDto.email, agentid: authDto.agentid};
-    const token =  await this.jwtService.signAsync(payload)
+    const token =  await this.jwtService.signAsync(payload);
     authDto.access_token = token;
     await this.agentpository.save(authDto);
     return token;
