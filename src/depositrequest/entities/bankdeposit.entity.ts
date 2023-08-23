@@ -33,13 +33,21 @@ export class Bankdeposit{
    @Column()
    paymentgateway:string
    @Column()
+   paymentID:string
+   @Column()
+   customerMsisdn:string
+   @Column()
    transactionid:string
    @Column({type:'varchar'})
    depositname:string
    @Column({type:'varchar'})
    chequenumber:string
+   @Column()
+   merchantInvoiceNumber:string
    @Column({type:'varchar'})
    depositby:string
+   @Column({type:'varchar'})
+   currency:string
    @Column({type:'varchar'})
    actionby:string
    @Column({type:'varchar'})

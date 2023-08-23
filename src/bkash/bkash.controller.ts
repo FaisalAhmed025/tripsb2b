@@ -1,37 +1,36 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req, Res,  } from '@nestjs/common';
+import { agentService } from 'src/agent/agent.service';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, Res, Query, HttpStatus } from '@nestjs/common';
 import { BkashService } from './bkash.service';
-import { CreateBkashDto } from './dto/create-bkash.dto';
-import { UpdateBkashDto } from './dto/update-bkash.dto';
-import { BkashException } from './bkashException';
-import { IBkashCreatePaymentResponse, IBkashExecutePaymentResponse, IBkashTokenResponse } from './entities/bkashresponse.interface';
-import { ICreatePayment } from './entities/createPayment.interface';
-import { log } from 'console';
-import { Request, Response } from 'express';
+
+import { Request, Response, response } from 'express';
 import { createHash } from 'crypto';
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
-import { diffSeconds } from './diffSeconds';
 import { HttpService } from '@nestjs/axios';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Bankdeposit, PaymentStatus } from 'src/depositrequest/entities/bankdeposit.entity';
+import { Repository } from 'typeorm';
+import axios from 'axios';
+import { Agent } from 'src/agent/entities/agent.entity';
+import { GeneralLedger } from 'src/general-ledger/entities/general-ledger.entity';
+
 
 
 @Controller('bkash')
 export class BkashController {
   private readonly baseURL = 'https://tokenized.pay.bka.sh/v1.2.0-beta/tokenized';
-  private readonly app_key = 'gswy5A2C7tHMZCOdoJWEIA5Ntc';
-  private readonly app_secret = 'WSRHWksUVGTiZHDefwmznOWIr9TNGu7VfkkHWV7NCMfvbRClWO5g';
-  private token: string;
-  private refreshToken: string;
-  private tokenIssueTime: number = 0;
-  private readonly headers = {
-    username: '01325087966',
-    password: '+RMPR@ug#4[',
-    'Content-Type':"application/json",
-    accept: 'application/json'
-  };
-  constructor(
-    private readonly bkashService: BkashService,
-    private readonly httpService: HttpService,
-    ) {}
+  private readonly app_key = 'gswy5A2C7tHMZCOdoJWEIA5Ntc'
+  private readonly app_secret = 'WSRHWksUVGTiZHDefwmznOWIr9TNGu7VfkkHWV7NCMfvbRClWO5g'
+  private readonly username ='01325087966'
+  private readonly password = '+RMPR@ug#4['
   
+  constructor(
+    private readonly agentService: agentService,
+    private readonly httpService: HttpService,
+    @InjectRepository(Bankdeposit) private bankdepositrepository: Repository<Bankdeposit>,
+    @InjectRepository(GeneralLedger) private GeneralLedgerrepository: Repository<GeneralLedger>,
+    @InjectRepository(Agent) private agentrepository: Repository<Agent>,
+  ) { }
+
+  //Generate TransactionID
   generateCustomTransactionId(): string {
     const timestamp = Date.now().toString();
     const randomString = Math.random().toString(36).substr(2, 6); // Generate a random alphanumeric string
@@ -39,7 +38,7 @@ export class BkashController {
     const shortenedHash = hash.substr(0, 16).toUpperCase();
     return shortenedHash;
   }
-
+//generate customer ID
   generateCustomorderId(): string {
     const timestamp = Date.now().toString();
     const randomString = Math.random().toString(36).substr(2, 6); // Generate a random alphanumeric string
@@ -47,151 +46,211 @@ export class BkashController {
     const shortenedHash = hash.substr(0, 12).toUpperCase();
     return shortenedHash;
   }
+  // token generation
+  @Post('token')
+  async createtoken() {
 
-  @Get('token')
-  async getInitialToken(): Promise<any> {
-    try {
-      const requestConfig: AxiosRequestConfig = {
-        method: 'POST',
-        url: `${this.baseURL}/checkout/token/grant`,
-        data: {
-          app_key: this.app_key,
-          app_secret: this.app_secret,
-        },
-        headers: this.headers,
-      };
-  
-      // Make the POST request using 'axios'
-      const response: AxiosResponse<IBkashTokenResponse> = await axios(requestConfig);
-  
-      // Check if the response indicates failure
-      if (response.data.status === 'fail') {
-        // Throw a custom exception indicating that invalid API credentials were provided
-        throw new BkashException('Invalid API Credentials Provided');
-      }
-      // If everything is successful, return the response containing the token
-      return response.data.id_token
-    } catch (error) {
-      // Handle any other potential errors here
-      // For example, if the API call itself fails or other unexpected errors occur
-      // You can throw a custom exception for other specific errors if needed
-      throw new BkashException('An error occurred while fetching the token');
-    }
-  }
-
-
-  // async newToken(refresh: string): Promise<any> {
-  //   const requestconfig: AxiosRequestConfig ={
-  //     method: 'POST',
-  //     url:`${this.baseURL}/checkout/token/refresh`,
-  //     data:{
-  //       app_key: this.key,
-  //       app_secret: this.secret,
-  //       refresh_token: refresh,
-  //     },
-  //     headers:this.headers
-  //   };
-  //   try {
-  //     const response: AxiosResponse<IBkashTokenResponse> = await axios(requestconfig)
-  //     return response.data.id_token
-  //   } catch (error) {
-      
-  //   }
-  // }
-
-  // async getToken(): Promise<string> {
-  //   if (!this.token) {
-  //     const { id_token, refresh_token, msg, status } = await this.getInitialToken();
-
-  //     // Throw an error if bkash sends status [only happens when the request fails]
-  //     if (status && msg) throw new BkashException(msg);
-  //     this.token = id_token;
-  //     this.refreshToken = refresh_token;
-  //     this.tokenIssueTime = Date.now();
-  //     return this.token;
-  //   }
-  //   const diff = diffSeconds(this.tokenIssueTime);
-
-  //   if (diff < 3500) {
-  //     return this.token;
-  //   }
-
-  //   // The token is expired, refresh it
-  //   const { id_token, refresh_token, msg, status } = await this.newToken(this.refreshToken);
-
-  //   // Throw an error if bkash sends status [only happens when the request fails]
-  //   if (status && msg) throw new BkashException(msg);
-  //   this.token = id_token;
-  //   this.refreshToken = refresh_token;
-  //   this.tokenIssueTime = Date.now();
-  //   return this.token;
-  // }
-
-  
-  // async createTokenHeader(){
-  //   const token = await this.getToken();
-  //   const header = {
-  //     authorization: token,
-  //     accept:'*/*',
-  //     'x-app-key': this.key,
-  //   };
-  //   return header;
-  // }
-
-
-  @Post('createPayment')
-  async createPayment( @Req() req: Request, @Res() res: Response) {
-    const { amount, merchantAssociationInfo, mode,tran_id, payerReference} = req.body;
-    const token = await this.getInitialToken()
-    const headers = {
-      'Content-Type':'application/json',
-      'Authorization': token,
-      'x-app-key': this.app_key
-    }
-    const paymentID = tran_id || this.generateCustomTransactionId();
-    const orderID =  this.generateCustomorderId();
-
+    // const jwtoken = await this.agentService.verifyToken()
+    // const token =  req.headers['authorization']
+    const url = `${this.baseURL}/checkout/token/grant`
     const payload = {
-      mode:mode || '',
-      payerReference: payerReference || '' ,
-      paymentID:paymentID || '',
-      callbackURL:"https://flyfarladies.com",
-      amount: amount || 0,
-      intent:'sale',
-      currency: 'BDT',
-      merchantInvoiceNumber: orderID, 
-      merchantAssociationInfo: merchantAssociationInfo || '',
+      "app_key": this.app_key,
+      "app_secret": this.app_secret
     }
-      const url = `https://tokenized.pay.bka.sh/tokenized/checkout/create`
-      console.log(url);
-      console.log(payload);
-      const x= await this.httpService.post(url, payload, {headers})
-      console.log(x);
-      return res.json(x);
-     
+    const headers = {
+      "accept": "application/json",
+      "username": this.username,
+      "password": this.password,
+      "content-type": "application/json"
+    };
+    const response = await this.httpService.post(url, payload, { headers }).toPromise()
+    return response.data.id_token
   }
 
-@Post('execute/:paymentID')
-async executePayemnt( @Req() req: Request, @Param('paymentID') paymentID :string){
-  const {customerMsisdn, payerReference, paymentExecuteTime,
-     trxID,transactionStatus,amount,currency, intent,merchantInvoiceNumber,
-     statusCode,
-     statusMessage,
-    } = req.body
 
-    const requestdata ={customerMsisdn, payerReference, paymentExecuteTime,
-      trxID,transactionStatus,amount,currency, intent,merchantInvoiceNumber,
-      statusCode,
-      statusMessage,
+  @Post("create")
+  async createpayment(
+    @Req() req: Request,
+    @Res() res: Response,
+    ) {
+    try {
+        //call token generation funtion
+      const token = await this.createtoken()
+      const endpoint = `${this.baseURL}/checkout/create`;
+      const headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `${token}`,
+        'X-APP-Key': 'gswy5A2C7tHMZCOdoJWEIA5Ntc',
+      };
+      const { amount, currency, agentid } = req.body    
+      if(parseFloat(amount)<10){
+        return res
+        .status(HttpStatus.OK)
+        .json({ status: 'error', message: 'minimum amount atlest 10 tk'});
+      }
+      
+      const requestData = {
+        mode: "0011",
+        payerReference: agentid || " ",
+        callbackURL: `http://localhost:5000/bkash/callback`,
+        amount: amount || "2",
+        currency: currency || "BDT",
+        intent: 'sale',
+        merchantInvoiceNumber: this.generateCustomTransactionId(),
+      };
+      const response = await this.httpService.post(endpoint, requestData, { headers }).toPromise();
+      if (response.status === 200) {
+        return res.json(response.data)
+      }
+    } catch (error) {
+      console.log(error)
+      return res.status(500).json({ error: error.message });
+    }
+  }
+
+
+  //execute the transaction
+  async executePayment(paymentID: string) {
+    const token = await this.createtoken();
+    const endpoint = `${this.baseURL}/checkout/execute`
+    const headers = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Authorization': `${token}`,
+      'X-APP-Key': 'gswy5A2C7tHMZCOdoJWEIA5Ntc'
+    };
+    const body = {
       paymentID
-     }
-     return requestdata;
-}
+    }
+    const response = await axios.post(endpoint, body, { headers })
+    console.log(response.data);
+    return response.data
+  }
+
+
+
+  //query status
+  @Get('/checkout/status/:paymentID')
+  async queryPayment(@Param('paymentID') paymentID: string) {
+    const token = await this.createtoken();
+    const endpoint = `${this.baseURL}/checkout/payment/status`
+    const headers = {
+      'content-type': 'application/json',
+      accept: 'application/json',
+      Authorization: `${token}`,
+      'X-APP-Key': 'gswy5A2C7tHMZCOdoJWEIA5Ntc',
+    };
+    const body = {
+      paymentID
+    }
+    const response = await this.httpService.post(endpoint, body, { headers }).toPromise()
+    if (response.status === 200) {
+      return response.data
+    }
+  }
+
+
+  //callback function
+  @Get("callback")
+  async Callback(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Query('paymentID') paymentID: string,
+    @Query('status') status: string,
+  ) {
+    //check status
+    if (status === "success") {
+      try {
+        let responsedata = await this.executePayment(paymentID);
+        console.log(responsedata);
+        if (responsedata.statusCode === '0000') {
+          const { amount, trxID, customerMsisdn, merchantInvoiceNumber, paymentExecuteTime, currency, transactionStatus } = responsedata;
+          //  save the response data in database
+          const instantdeposit = new Bankdeposit();
+          instantdeposit.status = PaymentStatus.APPROVED;
+          instantdeposit.transactionid = trxID; // Using paymentID as transactionid
+          instantdeposit.amount = amount // Parsing amount as a float
+          instantdeposit.paymentID = paymentID
+          instantdeposit.status = transactionStatus;
+          instantdeposit.customerMsisdn = customerMsisdn
+          instantdeposit.currency = currency;
+          instantdeposit.transactiondate = paymentExecuteTime
+          instantdeposit.merchantInvoiceNumber = merchantInvoiceNumber// Parsing date
+          await this.bankdepositrepository.save(instantdeposit)
+          await this.GeneralLedgerrepository.save(instantdeposit)
+          //redierct to front end 
+          console.log("Payment Successfully Processed and Saved!");
+          res.redirect(`https://flyfarladies.com?message=${transactionStatus}&status=${status}`)
+
+        }
+        else {
+          const message = 'payment failure'
+          const status = 'fail'
+          res.redirect(`https://flyfarladies.com/message=${encodeURIComponent(message)}&status=${encodeURIComponent(status)}`)
+        }
+      }
+      catch (error) {
+        console.error("Error processing payment:", error);
+        // Handle the error appropriately
+        res.status(500).json({ error: "An error occurred while processing the payment." });
+      }
+    } else if (status === 'cancel') {
+      const message = 'payement has been cancelled'
+      res.redirect(`https://flyfarladies.com?message=${message}&status=${status}`)
+    } else if (status === 'failure') {
+      const message = 'payment has been failure'
+      res.redirect(`https://flyfarladies.com?message=${message}&status=${status}`)
+    }
+  }
+
+  //Search Transaction Details
+  @Get('searchTransaction/:trxID')
+  async searchTransaction(@Req() req: Request, @Param('trxID') trxID: string): Promise<any> {
+    //endpoint
+    const url = `${this.baseURL}/checkout/general/searchTransaction`
+    //call th create token funtion for token
+    const token = await this.createtoken()
+    //headers
+    const headers = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Authorization': `${token}`,
+      'X-APP-Key': 'gswy5A2C7tHMZCOdoJWEIA5Ntc'
+    };
+    const data = {
+      trxID
+    };
+    //send http request
+    const response = await axios.post(url, data, { headers });
+    return response.data;
+  }
+
+
+  //refund transaction
+  @Post('refund')
+  async createRefund(@Req() req: Request) {
+    const url = `${this.baseURL}/checkout/payment/refund`
+    //call th create token funtion for token
+    const token = await this.createtoken()
+    //headers
+    const headers = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Authorization': `${token}`,
+      'X-APP-Key': 'gswy5A2C7tHMZCOdoJWEIA5Ntc'
+    };
+    const { paymentID, amount, trxID, sku, reason } = req.body
+    const body = {
+      paymentID,
+      amount,
+      trxID,
+      sku,
+      reason
+    }
+    //http request
+    const response = await axios.post(url, body, { headers });
+    return response.data;
+  }
 
 }
-
-  
-
-
-
-

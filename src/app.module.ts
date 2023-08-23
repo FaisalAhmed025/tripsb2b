@@ -25,15 +25,16 @@ import { NagadModule } from './nagad/nagad.module';
     ConfigModule.forRoot({ isGlobal:true, envFilePath: '.env', }),
     TypeOrmModule.forRoot({
       type:'mysql',
-      username:"flyfarin_qktickets",
-      password: "@Kayes70455",
-      host: "flyfarint.com",
-      database:"flyfarin_qktickets",
+      // username:"flyfarin_qktickets",
+      // password: "@Kayes70455",
+      // host: "flyfarint.com",
+      // database:"flyfarin_qktickets",
 
-      // username:'root',
-      // password:'',
-      // host: '127.0.0.1',
-      // database:'flyfartrips_b2b',
+      username:'root',
+      password:'',
+      host: '127.0.0.1',
+      database:'flyfartrips_b2b',
+      
       port:3306,
       entities:[
         Agent,
@@ -42,7 +43,7 @@ import { NagadModule } from './nagad/nagad.module';
         Staff,
         GeneralLedger
       ],
-      synchronize:false,
+      synchronize:true,
     }),
     AgentModule,
     DepositrequestModule,

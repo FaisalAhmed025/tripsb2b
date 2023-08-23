@@ -33,6 +33,8 @@ export class GeneralLedger {
    @Column({type:'varchar'})
    depositname:string
    @Column({type:'varchar'})
+   currency:string
+   @Column({type:'varchar'})
    chequenumber:string
    @Column({type:'varchar'})
    depositby:string
@@ -49,6 +51,11 @@ export class GeneralLedger {
    @Column({type:'date'})
    transactiondate:Date
    @Column({type:'varchar'})
+   @Column()
+   paymentID:string
+   @Column()
+   customerMsisdn:string
+   @Column()
    attachment:string
    @Column({type:'integer'})
    amount:number
