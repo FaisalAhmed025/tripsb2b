@@ -17,10 +17,10 @@ import { GeneralLedger } from 'src/general-ledger/entities/general-ledger.entity
 @Controller('bkash')
 export class BkashController {
   private readonly baseURL = 'https://tokenized.pay.bka.sh/v1.2.0-beta/tokenized';
-  private readonly app_key = 'gswy5A2C7tHMZCOdoJWEIA5Ntc'
-  private readonly app_secret = 'WSRHWksUVGTiZHDefwmznOWIr9TNGu7VfkkHWV7NCMfvbRClWO5g'
-  private readonly username ='01325087966'
-  private readonly password = '+RMPR@ug#4['
+  private readonly app_key = 'kfS1YBfX6L9H5KwYmNjJk2d4tc'
+  private readonly app_secret = 'n0YtGNOtXQgLHg3Ba3m0LKmJ17HCyisugvgMy0lsuK9r390KBrG5'
+  private readonly username ='01993319344'
+  private readonly password = 'P5MTa94fSA#'
   
   constructor(
     private readonly agentService: agentService,
@@ -81,10 +81,10 @@ export class BkashController {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
         'Authorization': `${token}`,
-        'X-APP-Key': 'gswy5A2C7tHMZCOdoJWEIA5Ntc',
+        'X-APP-Key': 'kfS1YBfX6L9H5KwYmNjJk2d4tc',
       };
       const { amount, currency, agentid } = req.body    
-      if(parseFloat(amount)<10){
+      if(parseFloat(amount)<1){
         return res
         .status(HttpStatus.OK)
         .json({ status: 'error', message: 'minimum amount atlest 10 tk'});
@@ -118,7 +118,7 @@ export class BkashController {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
       'Authorization': `${token}`,
-      'X-APP-Key': 'gswy5A2C7tHMZCOdoJWEIA5Ntc'
+      'X-APP-Key': 'kfS1YBfX6L9H5KwYmNjJk2d4tc'
     };
     const body = {
       paymentID
@@ -139,7 +139,7 @@ export class BkashController {
       'content-type': 'application/json',
       accept: 'application/json',
       Authorization: `${token}`,
-      'X-APP-Key': 'gswy5A2C7tHMZCOdoJWEIA5Ntc',
+      'X-APP-Key': 'kfS1YBfX6L9H5KwYmNjJk2d4tc',
     };
     const body = {
       paymentID
@@ -164,7 +164,7 @@ export class BkashController {
       try {
         let responsedata = await this.executePayment(paymentID);
         console.log(responsedata);
-        if (responsedata.statusCode === '0000') {
+        if (responsedata.statusCode === '0000' && responsedata.transactionStatus === "Completed") {
           const { amount, trxID, customerMsisdn, merchantInvoiceNumber, paymentExecuteTime, currency, transactionStatus } = responsedata;
           //  save the response data in database
           const instantdeposit = new Bankdeposit();
@@ -185,7 +185,7 @@ export class BkashController {
 
         }
         else {
-          const message = 'payment failure'
+          const message = responsedata.statusMessage
           const status = 'fail'
           res.redirect(`https://flyfarladies.com/message=${encodeURIComponent(message)}&status=${encodeURIComponent(status)}`)
         }
@@ -216,7 +216,7 @@ export class BkashController {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
       'Authorization': `${token}`,
-      'X-APP-Key': 'gswy5A2C7tHMZCOdoJWEIA5Ntc'
+      'X-APP-Key': 'kfS1YBfX6L9H5KwYmNjJk2d4tc'
     };
     const data = {
       trxID
@@ -238,7 +238,7 @@ export class BkashController {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
       'Authorization': `${token}`,
-      'X-APP-Key': 'gswy5A2C7tHMZCOdoJWEIA5Ntc'
+      'X-APP-Key': 'kfS1YBfX6L9H5KwYmNjJk2d4tc'
     };
     const { paymentID, amount, trxID, sku, reason } = req.body
     const body = {
